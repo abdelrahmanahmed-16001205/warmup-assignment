@@ -79,7 +79,6 @@ function getIdleTime(startTime, endTime) {
     const idleSeconds = totalDuration - activeSeconds
     return secondsToTimeFormat(idleSeconds)
 }
-}
 
 // ============================================================
 // Function 3: getActiveTime(shiftDuration, idleTime)
