@@ -267,31 +267,43 @@ function getRequiredHoursPerMonth(textFile, rateFile, bonusCount, driverID, mont
             dayOff = cols[1].trim()
         }
     })
-    const daysInMonth = new Date(2025, month, 0).getDate()
+
     const dayMap = {
         'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
         'Thursday': 4, 'Friday': 5, 'Saturday': 6
     }
     const offDayIndex = dayMap[dayOff]
-    let totalRequiredSeconds = 0
+
+    const shiftContent = fs.readFileSync(textFile, 'utf8')
+    const shiftLines = shiftContent.split('\n').filter(line => line.trim() !== '')
+    const monthStr = month.toString().padStart(2, '0')
+
     const quotaNormal = 8 * 3600 + 24 * 60
     const quotaEid = 6 * 3600
-    for (let d = 1; d <= daysInMonth; d++) {
+    let totalRequiredSeconds = 0
+
+    shiftLines.forEach(line => {
+        const cols = line.split(',')
+        if (cols[0].trim() !== driverID) return
+        const dateParts = cols[2].trim().split('-')
+        const recordMonth = dateParts[1]
+        if (recordMonth !== monthStr && parseInt(recordMonth) !== parseInt(month)) return
+
+        const d = parseInt(dateParts[2])
         const currentDayOfWeek = new Date(2025, month - 1, d).getDay()
-        if (currentDayOfWeek === offDayIndex) {
-            continue
-        }
+        if (currentDayOfWeek === offDayIndex) return
+
         let dailyQuota = quotaNormal
         if (month === 4 && d >= 10 && d <= 30) {
             dailyQuota = quotaEid
         }
         totalRequiredSeconds += dailyQuota
-}
+    })
+
     const bonusDeductionSeconds = bonusCount * 2 * 3600
     totalRequiredSeconds -= bonusDeductionSeconds
-    if (totalRequiredSeconds < 0) {
-        totalRequiredSeconds = 0
-    }
+    if (totalRequiredSeconds < 0) totalRequiredSeconds = 0
+
     return secondsToTimeFormat(totalRequiredSeconds)
 }
 
