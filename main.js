@@ -113,6 +113,7 @@ function metQuota(date, activeTime) {
     }
     return activeSec >= quota
 }
+
 // ============================================================
 // Function 5: addShiftRecord(textFile, shiftObj)
 // textFile: (typeof string) path to shifts text file
